@@ -1,5 +1,19 @@
 # PRD - 반도체 시료 생산주문관리 시스템
 
+## TDD 구현 Phase 문서
+
+| Phase | 문서 | 내용 |
+|---|---|---|
+| 1 | [phase1.md](phase1.md) | 프로젝트 구조 & 도메인 엔티티 (`Sample`, `Order`, `ProductionJob`) |
+| 2 | [phase2.md](phase2.md) | Repository 인터페이스 & 인메모리 구현 & Mock 클래스 |
+| 3 | [phase3.md](phase3.md) | `SampleService` TDD (등록, 검색, 재고 관리) |
+| 4 | [phase4.md](phase4.md) | `OrderService` TDD (상태 전환, 재고 분기, 생산량 계산) |
+| 5 | [phase5.md](phase5.md) | `ProductionService` TDD (FIFO 큐, 생산 완료) |
+| 6 | [phase6.md](phase6.md) | View & Controller TDD (가상 메서드, 입력 라우팅) |
+| 7 | [phase7.md](phase7.md) | JSON 영속성 & `main.cpp` 시스템 통합 |
+
+---
+
 ## 배경
 
 가상의 반도체 회사 "S-Semi"는 연구소, 팹리스(Fabless) 업체, 대학 연구실 등에 반도체 시료(Sample)를 납품한다. 주문량 급증으로 엑셀/메모장 기반 관리의 한계(주문 처리 누락, 재고·공정 현황 불투명)가 드러났고, 이를 해소하기 위해 콘솔 기반 생산주문관리 시스템을 개발한다.
