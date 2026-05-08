@@ -11,21 +11,29 @@ DummyDataGenerator로 개발·테스트 환경 초기 데이터를 주입한다.
 ## 구현 파일 목록
 
 ```
-src/repository/
-├── JsonSampleRepository.h/cpp
-├── JsonOrderRepository.h/cpp
-└── JsonProductionRepository.h/cpp
+src/json/                        # DataPersistence PoC에서 이식한 자체 JSON 라이브러리
+├── JsonValue.h                  # JSON 값 타입 (Null/Bool/Number/String/Array/Object)
+├── JsonParser.h
+└── JsonParser.cpp               # parse / stringify / parseFile / writeFile
 
-src/view/                    # ConsoleSampleView 등 실제 콘솔 구현체
+src/repository/
+├── RepositoryUtils.h            # ensureDirectoryExists() 공통 유틸
+├── JsonSampleRepository.h/cpp   # ISampleRepository 구현 (samples.json)
+├── JsonOrderRepository.h/cpp    # IOrderRepository 구현 (orders.json)
+│                                #   statusFromString()은 Order.h에서 import
+└── JsonProductionRepository.h/cpp  # IProductionRepository 구현 (production.json, flat array)
+
+src/view/                        # Console 구현체 (Phase 6의 추상 헤더와 분리)
+├── ConsoleMainView.h/cpp
 ├── ConsoleSampleView.h/cpp
 ├── ConsoleOrderView.h/cpp
 ├── ConsoleMonitorView.h/cpp
 ├── ConsoleProductionView.h/cpp
 └── ConsoleReleaseView.h/cpp
 
-main.cpp
+src/main.cpp
 
-test/repository/             # JSON 파일 기반 통합 테스트
+test/repository/                 # JSON 파일 기반 통합 테스트
 ├── JsonSampleRepositoryTest.cpp
 ├── JsonOrderRepositoryTest.cpp
 └── JsonProductionRepositoryTest.cpp
@@ -35,7 +43,7 @@ test/repository/             # JSON 파일 기반 통합 테스트
 
 ## JSON Repository 설계
 
-DataPersistence PoC(`src/json/` + nlohmann 또는 자체 JSON 파서)를 그대로 이식한다.
+DataPersistence PoC의 자체 JSON 파서(`JsonValue` + `JsonParser`)를 `src/json/`에 이식한다. 외부 라이브러리 의존 없음.
 
 ### 저장 파일 경로 (기본값)
 
@@ -52,21 +60,25 @@ data/
 class JsonSampleRepository : public ISampleRepository {
 public:
     explicit JsonSampleRepository(const std::string& filePath = "data/samples.json");
+    // 생성자: RepositoryUtils::ensureDirectoryExists(filePath) 호출 — data/ 자동 생성
 
     void        save(const Sample& sample) override;    // upsert (id 기준)
     std::optional<Sample> findById(const std::string& id) override;
     std::vector<Sample>   findAll() override;
     std::vector<Sample>   findByName(const std::string& keyword) override;
+    // findByName: 대소문자 무관 부분 문자열 검색 (tolower 적용)
     bool        existsById(const std::string& id) override;
     void        updateStock(const std::string& id, int delta) override;
     int         count() override;
 
 private:
     std::string filePath_;
-    std::vector<Sample> load() const;  // 파일 → 벡터
+    std::vector<Sample> load() const;  // 파일 → 벡터 (파일 없거나 빈 파일이면 빈 벡터)
     void flush(const std::vector<Sample>& data) const;  // 벡터 → 파일
 };
 ```
+
+> **`JsonOrderRepository`**: `statusToString()` / `statusFromString()`을 모두 `Order.h`에서 가져온다. 파일 내 로컬 `static stringToOrderStatus()` 함수는 제거됐다.
 
 ### JSON 직렬화 포맷
 
@@ -166,7 +178,7 @@ protected:
 #include "src/controller/MonitorController.h"
 #include "src/controller/ProductionController.h"
 #include "src/controller/ReleaseController.h"
-#include "src/view/MainView.h"
+#include "src/view/ConsoleMainView.h"
 #include "src/view/ConsoleSampleView.h"
 #include "src/view/ConsoleOrderView.h"
 #include "src/view/ConsoleMonitorView.h"
@@ -187,8 +199,8 @@ int main() {
     OrderService      orderSvc(sampleRepo, orderRepo, productionRepo);
     ProductionService productionSvc(productionRepo, orderRepo, sampleRepo);
 
-    // View 계층 (콘솔 구현체)
-    MainView              mainView;
+    // View 계층 (Console 구현체 — 추상 헤더의 구체 구현)
+    ConsoleMainView       mainView;
     ConsoleSampleView     sampleView;
     ConsoleOrderView      orderView;
     ConsoleMonitorView    monitorView;
@@ -245,7 +257,10 @@ DummyDataGenerator PoC의 `DummyDataFacade`를 개발 모드에서 활용한다.
 - [ ] 시료 등록 → 재실행 후 데이터 유지 확인 (영속성)
 - [ ] 주문 접수 → 승인(재고 충분) → 출고 처리 전체 흐름 콘솔 수동 확인
 - [ ] 주문 접수 → 승인(재고 부족) → 생산라인 등록 → 생산 완료 → 출고 흐름 확인
-- [ ] SRP 최종 확인: `JsonSampleRepository`가 JSON 직렬화/역직렬화만 담당 (비즈니스 로직 없음)
+- [ ] SRP 최종 확인:
+  - `JsonSampleRepository`: JSON 직렬화/역직렬화만 담당 (비즈니스 로직 없음)
+  - `JsonOrderRepository`: `statusFromString()`은 `Order.h`에서 가져옴 (로컬 static 함수 없음)
+  - 각 Json Repository 생성자: `RepositoryUtils::ensureDirectoryExists()` 공통 유틸 사용
 - [ ] Coverage (전체 누적):
   ```powershell
   OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe

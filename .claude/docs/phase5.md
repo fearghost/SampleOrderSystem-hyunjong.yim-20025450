@@ -36,21 +36,22 @@ public:
     ProductionService(IProductionRepository& production,
                       IOrderRepository&      orders,
                       ISampleRepository&     samples);
+    virtual ~ProductionService() = default;
 
     // 현재 생산 중인 작업 (큐 front)
-    [[nodiscard]] std::optional<ProductionJob> getCurrentJob() const;
+    [[nodiscard]] virtual std::optional<ProductionJob> getCurrentJob() const;
 
     // FIFO 대기 목록 (front 제외)
-    [[nodiscard]] std::vector<ProductionJob> getWaitingJobs() const;
+    [[nodiscard]] virtual std::vector<ProductionJob> getWaitingJobs() const;
 
-    [[nodiscard]] bool isIdle() const;
-    [[nodiscard]] int  queueSize() const;
+    [[nodiscard]] virtual bool isIdle() const;
+    [[nodiscard]] virtual int  queueSize() const;
 
     // 현재 작업 완료 처리:
     //   1. production_.dequeue()
     //   2. samples_.updateStock(sampleId, +actualQty)
     //   3. orders_.updateStatus(orderId, CONFIRMED)
-    void completeCurrentJob();
+    virtual void completeCurrentJob();
 
 private:
     IProductionRepository& production_;
@@ -58,6 +59,8 @@ private:
     ISampleRepository&     samples_;
 };
 ```
+
+> **`virtual` 선언 이유**: Phase 6에서 Controller 테스트가 `MockProductionService`를 주입하여 서비스 호출을 검증한다. Mock이 가능하려면 모든 public 메서드가 `virtual`이어야 한다.
 
 ---
 
