@@ -183,4 +183,5 @@ public:
 - [ ] 인터페이스 3개 컴파일 오류 없음
 - [ ] `MockRepositories.h` 컴파일 오류 없음
 - [ ] `InMemory*RepositoryTest` 전체 GREEN
+- [ ] Coverage: `OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe` → `InMemory*Repository` 구현 코드 커버리지 확인
 - [ ] `git commit`: "Phase 2: Add repository interfaces, in-memory impls, and mocks"

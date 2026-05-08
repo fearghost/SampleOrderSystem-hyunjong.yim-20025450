@@ -229,4 +229,6 @@ protected:
 - [ ] `OrderServiceTest` 전체 15개 케이스 GREEN
 - [ ] `calcActualQty` 경계값 포함 3개 케이스 GREEN
 - [ ] `OrderService`가 3개 인터페이스에만 의존 (구체 클래스 import 없음)
+- [ ] SRP 확인: `OrderService`가 주문 상태 전환 로직만 보유 (콘솔 출력 없음, View 참조 없음)
+- [ ] Coverage: `OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe` → `OrderService.cpp` 분기 커버리지 확인 (재고 충분/부족 양쪽 경로 모두 커버)
 - [ ] `git commit`: "Phase 4: Implement OrderService with TDD — state machine and production branching"

@@ -245,4 +245,10 @@ DummyDataGenerator PoC의 `DummyDataFacade`를 개발 모드에서 활용한다.
 - [ ] 시료 등록 → 재실행 후 데이터 유지 확인 (영속성)
 - [ ] 주문 접수 → 승인(재고 충분) → 출고 처리 전체 흐름 콘솔 수동 확인
 - [ ] 주문 접수 → 승인(재고 부족) → 생산라인 등록 → 생산 완료 → 출고 흐름 확인
+- [ ] SRP 최종 확인: `JsonSampleRepository`가 JSON 직렬화/역직렬화만 담당 (비즈니스 로직 없음)
+- [ ] Coverage (전체 누적):
+  ```powershell
+  OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe
+  ```
+  → `coverage\index.html`에서 전체 프로젝트 라인/분기 커버리지 최종 확인
 - [ ] `git commit`: "Phase 7: Add JSON repositories and wire main.cpp — system complete"

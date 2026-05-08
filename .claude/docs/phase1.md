@@ -136,4 +136,5 @@ int main(int argc, char** argv) {
 - [ ] `src/model/` 세 파일이 오류 없이 컴파일됨
 - [ ] `statusToString()` 5개 케이스 모두 매핑 확인
 - [ ] 테스트 프로젝트 빌드 후 `[0 tests passed]` 출력 (빈 테스트 스위트)
+- [ ] Coverage: Phase 1은 비즈니스 로직 없으므로 Coverage 대상 없음 — Phase 2부터 측정 시작
 - [ ] `git commit`: "Phase 1: Add domain entities and project structure"

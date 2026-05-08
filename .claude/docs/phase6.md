@@ -216,4 +216,8 @@ public:
 - [ ] `MockViews.h` 컴파일 오류 없음
 - [ ] 5개 Controller 테스트 파일 전체 GREEN (총 ~20개 케이스)
 - [ ] Controller가 Service와 View에만 의존 (Repository 직접 참조 없음)
+- [ ] SRP 확인:
+  - View: 콘솔 입출력만 (비즈니스 판단 없음)
+  - Controller: 입력→서비스 라우팅만 (계산·상태 전환 로직 없음)
+- [ ] Coverage: `OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe` → 각 Controller의 메뉴 분기 경로 커버리지 확인
 - [ ] `git commit`: "Phase 6: Implement Views and Controllers with TDD"

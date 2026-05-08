@@ -23,7 +23,35 @@ Or open `SampleOrderSystem.slnx` in Visual Studio 2022 and use the IDE build/run
 
 ## Testing
 
-Google Test (gtest) and Google Mock (gmock) are available via the `packages/gmock.1.11.0/` NuGet package. Tests are run by executing the compiled binary — gtest auto-discovers and runs all registered test cases.
+Google Test (gtest) and Google Mock (gmock) are available via the `packages/gmock.1.11.0/` NuGet package.
+
+```powershell
+# 테스트 프로젝트 빌드
+$msbuild = "C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe"
+& $msbuild SampleOrderSystem_Test.vcxproj /p:Configuration=Debug /p:Platform=x64
+
+# 테스트 실행 (gtest 자동 탐색)
+.\x64\Debug\SampleOrderSystem_Test.exe
+
+# Coverage 확인 (OpenCppCoverage 설치 필요)
+OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe
+# 결과: coverage\index.html
+```
+
+TDD 각 Phase에서 테스트 GREEN 확인 후 반드시 Coverage를 측정하여 신규 구현 코드가 테스트로 커버되는지 확인한다.
+
+## Coding Standards (Harness)
+
+구현 및 리팩토링 시 아래 규칙을 준수한다. Claude Code가 코드를 생성하거나 수정할 때 이 규칙이 자동으로 적용된다.
+
+- **SRP (Single Responsibility Principle)**: 클래스는 단 하나의 책임만 가진다.
+  - `model/`: 데이터 구조 보유만 (로직 없음)
+  - `repository/`: 저장소 CRUD만 (비즈니스 판단 없음)
+  - `service/`: 비즈니스 로직만 (입출력 없음)
+  - `controller/`: 입력 라우팅만 (비즈니스 로직 없음, Repository 직접 접근 금지)
+  - `view/`: 콘솔 입출력만 (상태 보유 금지)
+- 하나의 클래스가 두 가지 이유로 변경되어야 한다면 분리 대상이다.
+- 리팩토링 시 기존 테스트가 모두 GREEN을 유지해야 한다.
 
 ## Project Configuration
 
@@ -59,4 +87,11 @@ See [PRD.md](docs/PRD.md) for full architecture rationale, dependency diagram, T
 
 ## Documentation
 
-- **[PRD.md](.claude/docs/PRD.md)** — 기능 명세서. 반도체 시료 생산주문관리 시스템의 전체 기능, 주문 상태 흐름, 데이터 모델, TDD 구현 지침, 아키텍처 가이드를 포함한다.
+- **[PRD.md](docs/PRD.md)** — 기능 명세서. 전체 기능, 주문 상태 흐름, 데이터 모델, TDD 구현 지침, 아키텍처 가이드.
+- **[phase1.md](docs/phase1.md)** — 프로젝트 구조 & 도메인 엔티티
+- **[phase2.md](docs/phase2.md)** — Repository 인터페이스 & 인메모리 구현 & Mock
+- **[phase3.md](docs/phase3.md)** — SampleService TDD
+- **[phase4.md](docs/phase4.md)** — OrderService TDD (핵심 상태 전환)
+- **[phase5.md](docs/phase5.md)** — ProductionService TDD (FIFO 큐)
+- **[phase6.md](docs/phase6.md)** — View & Controller TDD
+- **[phase7.md](docs/phase7.md)** — JSON 영속성 & 시스템 통합

@@ -169,4 +169,6 @@ TEST_F(ProductionServiceTest, completeCurrentJob_orderOfCalls) {
 - [ ] `ProductionServiceTest` 전체 11개 케이스 GREEN
 - [ ] `completeCurrentJob` 호출 순서 InOrder 검증 통과
 - [ ] `ProductionService`가 3개 인터페이스에만 의존
+- [ ] SRP 확인: `ProductionService`가 생산 큐 관리·완료 처리만 보유 (주문 접수·시료 등록 로직 없음)
+- [ ] Coverage: `OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe` → `ProductionService.cpp` 커버리지 확인 (빈 큐 예외 경로 포함)
 - [ ] `git commit`: "Phase 5: Implement ProductionService with TDD — FIFO queue and completion flow"

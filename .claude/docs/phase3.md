@@ -134,4 +134,6 @@ protected:
 
 - [ ] `SampleServiceTest` 전체 10개 케이스 GREEN
 - [ ] `SampleService`가 `ISampleRepository`에만 의존 (구체 클래스 import 없음)
+- [ ] SRP 확인: `SampleService`가 시료 도메인 로직만 보유 (콘솔 출력·파일 I/O 없음)
+- [ ] Coverage: `OpenCppCoverage.exe --sources C:*.cpp --export_type=html:coverage -- .\x64\Debug\SampleOrderSystem_Test.exe` → `SampleService.cpp` 라인 커버리지 확인
 - [ ] `git commit`: "Phase 3: Implement SampleService with TDD"
