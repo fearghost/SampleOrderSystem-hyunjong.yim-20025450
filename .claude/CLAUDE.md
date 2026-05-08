@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**GitHub Repository**: https://github.com/fearghost/SampleOrderSystem-hyunjong.yim-20025450
+
 ## Project Overview
 
 C++ Console Application targeting C++20, built with Visual Studio 2022 (MSBuild, toolset v145). Uses Google Mock/Test (gmock 1.11.0) for testing.
