@@ -79,15 +79,31 @@
   <ItemGroup>
     <ClCompile Include="src\model\Order.cpp" />
   </ItemGroup>
+  <!-- Phase 2: repository sources -->
+  <ItemGroup>
+    <ClCompile Include="src\repository\InMemorySampleRepository.cpp" />
+    <ClCompile Include="src\repository\InMemoryOrderRepository.cpp" />
+    <ClCompile Include="src\repository\InMemoryProductionRepository.cpp" />
+  </ItemGroup>
   <!-- Test sources -->
   <ItemGroup>
     <ClCompile Include="test\test_main.cpp" />
+    <ClCompile Include="test\repository\InMemorySampleRepositoryTest.cpp" />
+    <ClCompile Include="test\repository\InMemoryOrderRepositoryTest.cpp" />
+    <ClCompile Include="test\repository\InMemoryProductionRepositoryTest.cpp" />
   </ItemGroup>
   <!-- Headers -->
   <ItemGroup>
     <ClInclude Include="src\model\Sample.h" />
     <ClInclude Include="src\model\Order.h" />
     <ClInclude Include="src\model\ProductionJob.h" />
+    <ClInclude Include="src\repository\ISampleRepository.h" />
+    <ClInclude Include="src\repository\IOrderRepository.h" />
+    <ClInclude Include="src\repository\IProductionRepository.h" />
+    <ClInclude Include="src\repository\InMemorySampleRepository.h" />
+    <ClInclude Include="src\repository\InMemoryOrderRepository.h" />
+    <ClInclude Include="src\repository\InMemoryProductionRepository.h" />
+    <ClInclude Include="test\MockRepositories.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
