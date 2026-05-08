@@ -1,6 +1,7 @@
 #include "ConsoleSampleView.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 namespace {
     constexpr int kColId           = 8;
@@ -50,11 +51,15 @@ void ConsoleSampleView::showSampleList(const std::vector<Sample>& list, const st
               << "재고\n";
     std::cout << std::string(kSeparatorWidth, '-') << "\n";
     for (const auto& s : list) {
+        std::ostringstream timeStr;
+        timeStr << std::fixed << std::setprecision(1) << s.avgProductionTime << " min";
+        std::ostringstream yieldStr;
+        yieldStr << std::fixed << std::setprecision(2) << s.yieldRate;
         std::cout << std::left
-                  << std::setw(kColId)   << s.id
-                  << std::setw(kColName) << s.name
-                  << std::setw(kColProductionTime) << (std::to_string(s.avgProductionTime) + " min")
-                  << std::setw(kColYieldRate) << s.yieldRate
+                  << std::setw(kColId)             << s.id
+                  << std::setw(kColName)            << s.name
+                  << std::setw(kColProductionTime)  << timeStr.str()
+                  << std::setw(kColYieldRate)        << yieldStr.str()
                   << s.stock << " ea\n";
     }
 }
