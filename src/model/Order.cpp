@@ -10,3 +10,11 @@ std::string statusToString(OrderStatus s) {
         default:                     return "UNKNOWN";
     }
 }
+
+OrderStatus statusFromString(const std::string& s) {
+    if (s == "RESERVED")  return OrderStatus::RESERVED;
+    if (s == "PRODUCING") return OrderStatus::PRODUCING;
+    if (s == "CONFIRMED") return OrderStatus::CONFIRMED;
+    if (s == "RELEASE")   return OrderStatus::RELEASE;
+    return OrderStatus::REJECTED;
+}

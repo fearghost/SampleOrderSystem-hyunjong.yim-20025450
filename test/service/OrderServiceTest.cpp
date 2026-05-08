@@ -24,17 +24,20 @@ protected:
     }
 };
 
-// 1. placeOrder — RESERVED 저장
+// 1. placeOrder — RESERVED 저장 (orderId·createdAt은 서비스가 내부 생성)
 TEST_F(OrderServiceTest, placeOrder_savesReservedOrder) {
     Order captured;
     EXPECT_CALL(mockSamples, existsById("S-001")).WillOnce(Return(true));
     EXPECT_CALL(mockOrders, save(_)).WillOnce(SaveArg<0>(&captured));
 
-    service.placeOrder("S-001", "고객A", 200, "ORD-001", "2026-05-08");
+    service.placeOrder("S-001", "고객A", 200);
 
-    EXPECT_EQ(captured.status, OrderStatus::RESERVED);
-    EXPECT_EQ(captured.orderId, "ORD-001");
-    EXPECT_EQ(captured.quantity, 200);
+    EXPECT_EQ(captured.status,       OrderStatus::RESERVED);
+    EXPECT_EQ(captured.sampleId,     "S-001");
+    EXPECT_EQ(captured.customerName, "고객A");
+    EXPECT_EQ(captured.quantity,     200);
+    EXPECT_FALSE(captured.orderId.empty());   // 서비스가 생성
+    EXPECT_FALSE(captured.createdAt.empty()); // 서비스가 생성
 }
 
 // 2. placeOrder — 존재하지 않는 시료 ID
@@ -42,7 +45,7 @@ TEST_F(OrderServiceTest, placeOrder_unknownSampleId_throws) {
     EXPECT_CALL(mockSamples, existsById("S-999")).WillOnce(Return(false));
 
     EXPECT_THROW(
-        service.placeOrder("S-999", "고객A", 100, "ORD-001", "2026-05-08"),
+        service.placeOrder("S-999", "고객A", 100),
         std::invalid_argument
     );
 }

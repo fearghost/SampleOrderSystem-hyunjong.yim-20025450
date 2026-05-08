@@ -33,7 +33,7 @@ public:
     MockOrderService() : OrderService(dummyS(), dummyO(), dummyP()) {}
 
     MOCK_METHOD(void, placeOrder,
-        (const std::string&, const std::string&, int, const std::string&, const std::string&),
+        (const std::string&, const std::string&, int),
         (override));
     MOCK_METHOD(void, approveOrder,       (const std::string&), (override));
     MOCK_METHOD(void, rejectOrder,        (const std::string&), (override));

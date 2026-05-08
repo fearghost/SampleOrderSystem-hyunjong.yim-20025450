@@ -9,7 +9,8 @@ enum class OrderStatus {
     REJECTED
 };
 
-std::string statusToString(OrderStatus s);
+[[nodiscard]] std::string  statusToString(OrderStatus s);
+[[nodiscard]] OrderStatus  statusFromString(const std::string& s);
 
 struct Order {
     std::string orderId;       // ORD-YYYYMMDD-NNNN

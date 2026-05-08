@@ -2,6 +2,14 @@
 #include <iostream>
 #include <iomanip>
 
+namespace {
+    constexpr int kColId           = 8;
+    constexpr int kColName         = 24;
+    constexpr int kColProductionTime = 12;
+    constexpr int kColYieldRate    = 8;
+    constexpr int kSeparatorWidth  = 60;
+}
+
 void ConsoleSampleView::showSubMenu() {
     std::cout << "\n[1] 시료 관리\n";
     std::cout << " [1] 시료 등록   [2] 시료 목록   [3] 시료 검색   [0] 위로\n";
@@ -9,8 +17,10 @@ void ConsoleSampleView::showSubMenu() {
 
 int ConsoleSampleView::getMenuChoice() {
     std::cout << "선택 > ";
-    int c = 0; std::cin >> c; std::cin.ignore();
-    return c;
+    int choice = 0;
+    std::cin >> choice;
+    std::cin.ignore();
+    return choice;
 }
 
 SampleInput ConsoleSampleView::getRegisterInput() {
@@ -33,18 +43,18 @@ std::string ConsoleSampleView::getSearchKeyword() {
 void ConsoleSampleView::showSampleList(const std::vector<Sample>& list, const std::string& header) {
     std::cout << "\n" << header << " (총 " << list.size() << "종)\n";
     std::cout << std::left
-              << std::setw(8)  << "ID"
-              << std::setw(24) << "시료명"
-              << std::setw(12) << "생산시간"
-              << std::setw(8)  << "수율"
+              << std::setw(kColId)            << "ID"
+              << std::setw(kColName)          << "시료명"
+              << std::setw(kColProductionTime)<< "생산시간"
+              << std::setw(kColYieldRate)     << "수율"
               << "재고\n";
-    std::cout << std::string(60, '-') << "\n";
+    std::cout << std::string(kSeparatorWidth, '-') << "\n";
     for (const auto& s : list) {
         std::cout << std::left
-                  << std::setw(8)  << s.id
-                  << std::setw(24) << s.name
-                  << std::setw(12) << (std::to_string(s.avgProductionTime) + " min")
-                  << std::setw(8)  << s.yieldRate
+                  << std::setw(kColId)   << s.id
+                  << std::setw(kColName) << s.name
+                  << std::setw(kColProductionTime) << (std::to_string(s.avgProductionTime) + " min")
+                  << std::setw(kColYieldRate) << s.yieldRate
                   << s.stock << " ea\n";
     }
 }

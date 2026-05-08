@@ -13,11 +13,10 @@ public:
                  IProductionRepository& production);
     virtual ~OrderService() = default;
 
+    // 주문 접수 → orderId·createdAt은 서비스가 내부 생성
     virtual void placeOrder(const std::string& sampleId,
                             const std::string& customerName,
-                            int                quantity,
-                            const std::string& orderId,
-                            const std::string& createdAt);
+                            int                quantity);
 
     virtual void approveOrder(const std::string& orderId);
     virtual void rejectOrder(const std::string& orderId);
@@ -35,5 +34,6 @@ private:
     IOrderRepository&      orders_;
     IProductionRepository& production_;
 
+    static std::string generateOrderId();
     static std::string generateTimestamp();
 };

@@ -1,11 +1,5 @@
 #include "OrderController.h"
 #include <stdexcept>
-#include <string>
-
-static int sOrderCounter = 0;
-static std::string makeOrderId() {
-    return "ORD-" + std::to_string(++sOrderCounter);
-}
 
 OrderController::OrderController(OrderService& service, OrderView& view)
     : service_(service), view_(view) {}
@@ -13,8 +7,7 @@ OrderController::OrderController(OrderService& service, OrderView& view)
 void OrderController::run() {
     auto input = view_.getOrderInput();
     try {
-        service_.placeOrder(input.sampleId, input.customerName,
-                            input.quantity, makeOrderId(), "");
+        service_.placeOrder(input.sampleId, input.customerName, input.quantity);
         view_.showSuccess("주문이 접수됐습니다.");
     } catch (const std::exception& e) {
         view_.showError(e.what());

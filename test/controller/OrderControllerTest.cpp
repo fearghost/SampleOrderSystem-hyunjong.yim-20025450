@@ -20,11 +20,11 @@ protected:
     }
 };
 
-// 1. run() → placeOrder 호출
+// 1. run() → placeOrder 호출 (orderId·createdAt은 서비스가 내부 생성)
 TEST_F(OrderControllerTest, placeOrder_callsService) {
     OrderInput input{"S-001", "고객A", 200};
     EXPECT_CALL(mockView, getOrderInput()).WillOnce(Return(input));
-    EXPECT_CALL(mockService, placeOrder("S-001", "고객A", 200, _, _)).Times(1);
+    EXPECT_CALL(mockService, placeOrder("S-001", "고객A", 200)).Times(1);
     EXPECT_CALL(mockView, showSuccess(_));
 
     controller.run();

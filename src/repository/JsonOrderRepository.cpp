@@ -1,12 +1,11 @@
 #include "JsonOrderRepository.h"
+#include "RepositoryUtils.h"
 #include "../json/JsonParser.h"
-#include <filesystem>
 #include <algorithm>
 
 JsonOrderRepository::JsonOrderRepository(const std::string& filePath)
     : filePath_(filePath) {
-    auto dir = std::filesystem::path(filePath_).parent_path();
-    if (!dir.empty()) std::filesystem::create_directories(dir);
+    RepositoryUtils::ensureDirectoryExists(filePath_);
 }
 
 void JsonOrderRepository::save(const Order& order) {
@@ -72,16 +71,8 @@ JsonValue JsonOrderRepository::toJson(const Order& o) {
     return obj;
 }
 
-static OrderStatus stringToOrderStatus(const std::string& s) {
-    if (s == "RESERVED")  return OrderStatus::RESERVED;
-    if (s == "PRODUCING")  return OrderStatus::PRODUCING;
-    if (s == "CONFIRMED")  return OrderStatus::CONFIRMED;
-    if (s == "RELEASE")    return OrderStatus::RELEASE;
-    return OrderStatus::REJECTED;
-}
-
 Order JsonOrderRepository::fromJson(const JsonValue& j) {
     return { j["orderId"].asString(), j["sampleId"].asString(),
              j["customerName"].asString(), j["quantity"].asInt(),
-             stringToOrderStatus(j["status"].asString()), j["createdAt"].asString() };
+             statusFromString(j["status"].asString()), j["createdAt"].asString() };
 }

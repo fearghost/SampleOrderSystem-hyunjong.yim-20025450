@@ -3,14 +3,24 @@
 #include <iostream>
 #include <iomanip>
 
+namespace {
+    constexpr int kColOrderId      = 22;
+    constexpr int kColCustomerName = 20;
+    constexpr int kColSampleId     = 10;
+    constexpr int kColQuantity     = 8;
+    constexpr int kSeparatorWidth  = 64;
+}
+
 void ConsoleOrderView::showSubMenu() {
     std::cout << "\n[1] 승인   [2] 거절   [0] 위로\n";
 }
 
 int ConsoleOrderView::getMenuChoice() {
     std::cout << "선택 > ";
-    int c = 0; std::cin >> c; std::cin.ignore();
-    return c;
+    int choice = 0;
+    std::cin >> choice;
+    std::cin.ignore();
+    return choice;
 }
 
 OrderInput ConsoleOrderView::getOrderInput() {
@@ -30,18 +40,18 @@ std::string ConsoleOrderView::getOrderId(const std::string& prompt) {
 void ConsoleOrderView::showOrderList(const std::vector<Order>& list, const std::string& header) {
     std::cout << "\n" << header << " (" << list.size() << "건)\n";
     std::cout << std::left
-              << std::setw(22) << "주문번호"
-              << std::setw(20) << "고객명"
-              << std::setw(10) << "시료 ID"
-              << std::setw(8)  << "수량"
+              << std::setw(kColOrderId)      << "주문번호"
+              << std::setw(kColCustomerName) << "고객명"
+              << std::setw(kColSampleId)     << "시료 ID"
+              << std::setw(kColQuantity)     << "수량"
               << "상태\n";
-    std::cout << std::string(64, '-') << "\n";
+    std::cout << std::string(kSeparatorWidth, '-') << "\n";
     for (const auto& o : list)
         std::cout << std::left
-                  << std::setw(22) << o.orderId
-                  << std::setw(20) << o.customerName
-                  << std::setw(10) << o.sampleId
-                  << std::setw(8)  << o.quantity
+                  << std::setw(kColOrderId)      << o.orderId
+                  << std::setw(kColCustomerName) << o.customerName
+                  << std::setw(kColSampleId)     << o.sampleId
+                  << std::setw(kColQuantity)     << o.quantity
                   << statusToString(o.status) << "\n";
 }
 

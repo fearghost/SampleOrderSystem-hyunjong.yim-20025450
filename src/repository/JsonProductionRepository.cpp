@@ -1,11 +1,10 @@
 #include "JsonProductionRepository.h"
+#include "RepositoryUtils.h"
 #include "../json/JsonParser.h"
-#include <filesystem>
 
 JsonProductionRepository::JsonProductionRepository(const std::string& filePath)
     : filePath_(filePath) {
-    auto dir = std::filesystem::path(filePath_).parent_path();
-    if (!dir.empty()) std::filesystem::create_directories(dir);
+    RepositoryUtils::ensureDirectoryExists(filePath_);
 }
 
 void JsonProductionRepository::enqueue(const ProductionJob& job) {

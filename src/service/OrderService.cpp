@@ -3,6 +3,12 @@
 #include <chrono>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
+
+namespace {
+    // 수율 버퍼: 이론 수율의 90%만 실현 가정 (PRD 명세)
+    constexpr double kYieldSafetyFactor = 0.9;
+}
 
 OrderService::OrderService(ISampleRepository&     samples,
                            IOrderRepository&      orders,
@@ -11,19 +17,17 @@ OrderService::OrderService(ISampleRepository&     samples,
 
 void OrderService::placeOrder(const std::string& sampleId,
                               const std::string& customerName,
-                              int                quantity,
-                              const std::string& orderId,
-                              const std::string& createdAt) {
+                              int                quantity) {
     if (!samples_.existsById(sampleId))
         throw std::invalid_argument("존재하지 않는 시료 ID: " + sampleId);
 
     Order o;
-    o.orderId       = orderId;
-    o.sampleId      = sampleId;
-    o.customerName  = customerName;
-    o.quantity      = quantity;
-    o.status        = OrderStatus::RESERVED;
-    o.createdAt     = createdAt;
+    o.orderId      = generateOrderId();
+    o.createdAt    = generateTimestamp();
+    o.sampleId     = sampleId;
+    o.customerName = customerName;
+    o.quantity     = quantity;
+    o.status       = OrderStatus::RESERVED;
     orders_.save(o);
 }
 
@@ -46,9 +50,9 @@ void OrderService::approveOrder(const std::string& orderId) {
         orders_.updateStatus(orderId, OrderStatus::CONFIRMED);
         samples_.updateStock(order.sampleId, -order.quantity);
     } else {
-        int    shortage   = order.quantity - sample.stock;
-        int    actualQty  = calcActualQty(shortage, sample.yieldRate);
-        double totalTime  = sample.avgProductionTime * actualQty;
+        const int    shortage  = order.quantity - sample.stock;
+        const int    actualQty = calcActualQty(shortage, sample.yieldRate);
+        const double totalTime = sample.avgProductionTime * actualQty;
 
         ProductionJob job;
         job.orderId   = orderId;
@@ -104,7 +108,19 @@ int OrderService::totalOrderCount() const {
 }
 
 int OrderService::calcActualQty(int shortage, double yieldRate) {
-    return static_cast<int>(std::ceil(static_cast<double>(shortage) / (yieldRate * 0.9)));
+    return static_cast<int>(
+        std::ceil(static_cast<double>(shortage) / (yieldRate * kYieldSafetyFactor)));
+}
+
+std::string OrderService::generateOrderId() {
+    const std::string ts   = generateTimestamp();          // "2026-05-08T09:32:15"
+    std::string       date = ts.substr(0, 10);             // "2026-05-08"
+    date.erase(std::remove(date.begin(), date.end(), '-'), date.end()); // "20260508"
+
+    static int s_seq = 0;
+    std::ostringstream oss;
+    oss << "ORD-" << date << "-" << std::setfill('0') << std::setw(4) << ++s_seq;
+    return oss.str();
 }
 
 std::string OrderService::generateTimestamp() {
