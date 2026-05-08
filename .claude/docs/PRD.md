@@ -197,69 +197,161 @@ RESERVED ──→ (승인, 재고 충분) ──→ CONFIRMED ──→ RELEASE
 
 ## 데이터 모델
 
+ConsoleMVC PoC의 실제 엔티티 구조를 기반으로 한다.
+
 ### Sample (시료)
 
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| id | string | 고유 ID (S-NNN) |
-| name | string | 시료명 |
-| avgProductionTime | float | 평균 생산시간 (min/ea) |
-| yield | float | 수율 (0 < yield ≤ 1.0) |
-| stock | int | 현재 재고 수량 |
+```cpp
+struct Sample {
+    std::string id;               // 고유 ID (S-NNN)
+    std::string name;             // 시료명
+    double      avgProductionTime;// 평균 생산시간 (min/ea) — PDF 예시 0.5/0.3 등 소수점 포함
+    double      yieldRate;        // 수율 (0 < yieldRate ≤ 1.0)
+    int         stock;            // 현재 재고 수량
+};
+```
 
 ### Order (주문)
 
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| orderId | string | 주문번호 (ORD-YYYYMMDD-NNNN) |
-| sampleId | string | 시료 ID (FK → Sample) |
-| customerName | string | 고객명 |
-| quantity | int | 주문 수량 |
-| status | enum | RESERVED / REJECTED / PRODUCING / CONFIRMED / RELEASE |
-| createdAt | datetime | 주문 생성 일시 |
+```cpp
+enum class OrderStatus { RESERVED, PRODUCING, CONFIRMED, RELEASE, REJECTED };
+
+struct Order {
+    std::string orderId;      // 주문번호 (ORD-YYYYMMDD-NNNN)
+    std::string sampleId;     // 시료 ID → Sample
+    std::string customerName; // 고객명
+    int         quantity;     // 주문 수량
+    OrderStatus status;
+    std::string createdAt;    // 생성 일시 (문자열, ISO 8601)
+};
+```
 
 ### ProductionJob (생산 작업)
 
-| 필드 | 타입 | 설명 |
-|---|---|---|
-| orderId | string | 연결 주문 ID |
-| sampleId | string | 시료 ID |
-| shortage | int | 부족분 |
-| actualQty | int | 실 생산량 = ceil(shortage / (yield × 0.9)) |
-| totalTime | float | 총 생산 시간 = avgProductionTime × actualQty |
-| status | enum | WAITING / RUNNING / DONE |
+```cpp
+struct ProductionJob {
+    std::string orderId;    // 연결 주문 ID
+    std::string sampleId;   // 시료 ID
+    int         shortage;   // 부족분 = quantity - stock_at_approval
+    int         actualQty;  // 실 생산량 = ceil(shortage / (yieldRate × 0.9))
+    double      totalTime;  // 총 생산 시간 = avgProductionTime × actualQty
+};
+```
 
----
-
-## TDD 구현 지침
-
-- 각 기능은 테스트를 먼저 작성하고 구현한다 (Red → Green → Refactor).
-- 테스트는 `test/` 디렉토리에 기능 단위로 분리한다.
-- Mock 대상: 저장소(Repository) 레이어, 생산라인 스케줄러.
-- 핵심 테스트 케이스:
-  - 주문 승인 시 재고 충분 → `CONFIRMED` 전환 검증
-  - 주문 승인 시 재고 부족 → `PRODUCING` 전환 및 생산라인 큐 등록 검증
-  - 실 생산량 공식: `ceil(shortage / (yield × 0.9))` 계산 검증
-  - 생산 완료 시 `PRODUCING` → `CONFIRMED` 전환 검증
-  - 출고 처리 시 `CONFIRMED` → `RELEASE` 전환 검증
-  - 재고 상태(여유/부족/고갈) 판정 로직 검증
-  - FIFO 생산 큐 순서 보장 검증
+`ProductionLine`은 `std::queue<ProductionJob>`으로 FIFO 관리한다 (ConsoleMVC PoC 검증).
 
 ---
 
 ## 아키텍처 가이드
 
-PoC(ConsoleMVC)에서 검증한 `controller/` / `model/` / `view/` 3계층 구조를 그대로 적용한다.
+### Review 결과: 두 PoC의 역할 분담
+
+| PoC | 검증한 패턴 | 본 시스템 적용 |
+|---|---|---|
+| ConsoleMVC | Controller/View 명칭·분리, View 가상화(MockViews), ProductionLine(queue), DI | Controller·View 계층 네이밍과 구조 그대로 채택 |
+| DataPersistence | `I*Repository` 순수 가상 인터페이스, Service 레이어, JSON 영속성 | Repository 인터페이스 + Service 계층 도입 |
+| DataMonitor | Service를 통한 실시간 조회 | MonitorController → Service 의존 구조 |
+| DummyDataGenerator | `DummyDataFacade` + generator/, Repository 주입 | 개발·테스트 환경 초기 데이터 주입 도구로 활용 |
+
+### 4계층 디렉토리 구조
+
+ConsoleMVC PoC의 단일 `model/`은 엔티티와 레포지토리가 혼재하고 인터페이스가 없어 Repository Mock이 불가능하다. DataPersistence PoC에서 검증된 인터페이스 + 서비스 레이어를 추가하여 아래 4계층으로 분리한다.
 
 ```
 src/
-├── model/          # 도메인 엔티티, Repository 인터페이스
-├── controller/     # 비즈니스 로직, 상태 전환 규칙
-├── view/           # 콘솔 입출력, 메뉴 렌더링
-└── main.cpp
-test/               # Google Test / Mock 기반 단위 테스트
+├── model/                      # 도메인 엔티티 헤더만 (외부 의존 없음)
+│   ├── Sample.h
+│   ├── Order.h                 # enum class OrderStatus 포함
+│   └── ProductionJob.h
+│
+├── repository/                 # DataPersistence PoC 패턴
+│   ├── ISampleRepository.h     # 순수 가상 인터페이스 (Mock 진입점)
+│   ├── IOrderRepository.h
+│   ├── IProductionRepository.h
+│   ├── SampleRepository.h/cpp  # JSON 파일 기반 구현체
+│   ├── OrderRepository.h/cpp
+│   └── ProductionRepository.h/cpp
+│
+├── service/                    # DataPersistence PoC 패턴 — 비즈니스 로직
+│   ├── SampleService.h/cpp     # 시료 등록·검색·재고 관리
+│   ├── OrderService.h/cpp      # 주문 접수·승인·거절·출고·생산완료
+│   └── ProductionService.h/cpp # FIFO 큐 관리, 생산 완료 처리
+│
+├── controller/                 # ConsoleMVC PoC 패턴 — 입력 라우팅만 담당
+│   ├── SampleController.h/cpp
+│   ├── OrderController.h/cpp
+│   ├── MonitorController.h/cpp
+│   ├── ProductionController.h/cpp
+│   └── ReleaseController.h/cpp
+│
+├── view/                       # ConsoleMVC PoC 패턴 — 가상 메서드로 Mock 가능
+│   ├── MainView.h/cpp
+│   ├── SampleView.h/cpp
+│   ├── OrderView.h/cpp
+│   ├── MonitorView.h/cpp
+│   ├── ProductionView.h/cpp
+│   └── ReleaseView.h/cpp
+│
+└── main.cpp                    # 구체 타입 생성 및 DI 조립
+
+test/
+├── MockRepositories.h          # MOCK_METHOD on I*Repository (DataPersistence 패턴)
+├── MockViews.h                 # MOCK_METHOD on View virtual methods (ConsoleMVC 패턴)
+├── service/
+│   ├── OrderServiceTest.cpp    # Mock I*Repository → OrderService 로직 검증
+│   ├── SampleServiceTest.cpp
+│   └── ProductionServiceTest.cpp
+├── controller/
+│   ├── OrderControllerTest.cpp # Mock Service + MockView → 라우팅 검증
+│   ├── SampleControllerTest.cpp
+│   └── ...
+└── repository/
+    ├── SampleRepositoryTest.cpp # 임시 JSON 파일로 영속성 통합 테스트
+    └── ...
 ```
 
-- **영속성**: DataPersistence PoC에서 선택한 저장 방식(파일/JSON/DB)을 Repository 구현체로 연결한다.
-- **모니터링**: DataMonitor PoC의 실시간 조회 패턴을 모니터링 메뉴에 적용한다.
-- **더미 데이터**: DummyDataGenerator PoC를 활용하여 개발·테스트 환경에 초기 데이터를 주입한다.
+### 의존성 방향 (단방향 준수)
+
+```
+main.cpp
+  └─ 생성: JsonSampleRepository, JsonOrderRepository, JsonProductionRepository
+  └─ 생성: SampleService(ISampleRepo&)
+           OrderService(ISampleRepo&, IOrderRepo&, IProductionRepo&)
+           ProductionService(IProductionRepo&, IOrderRepo&)
+  └─ 생성: SampleController(SampleService&, SampleView&)
+           OrderController(OrderService&, OrderView&)
+           MonitorController(SampleService&, OrderService&, MonitorView&)
+           ProductionController(ProductionService&, ProductionView&)
+           ReleaseController(OrderService&, ReleaseView&)
+
+의존 방향: controller → service → repository(interface) ← repository(impl)
+           controller → view(interface) ← view(impl)
+```
+
+### TDD Mock 전략
+
+| 테스트 대상 | Mock 대상 | 검증 내용 |
+|---|---|---|
+| `OrderService` | `MockISampleRepo`, `MockIOrderRepo`, `MockIProductionRepo` | 재고 분기 로직, 상태 전환 |
+| `SampleService` | `MockISampleRepo` | 중복 ID 거부, 재고 차감 |
+| `ProductionService` | `MockIProductionRepo`, `MockIOrderRepo` | FIFO 순서, 완료 처리 |
+| `*Controller` | Mock Service + `MockView` | 입력→서비스 호출 라우팅 |
+| `*Repository` | 없음 (임시 JSON 파일) | 영속성 CRUD 통합 테스트 |
+
+### 핵심 TDD 테스트 케이스
+
+- 주문 승인 시 재고 충분(stock ≥ qty) → `CONFIRMED` 전환, `updateStock` 호출 검증
+- 주문 승인 시 재고 부족(stock < qty) → `PRODUCING` 전환, `IProductionRepository::enqueue` 호출 검증
+- 실 생산량 공식: `ceil(shortage / (yieldRate × 0.9))` — 경계값 포함 검증
+- 생산 완료 시 `PRODUCING` → `CONFIRMED` 전환 및 재고 반영
+- 출고 처리 시 `CONFIRMED` → `RELEASE` 전환
+- 재고 상태 판정: 여유(stock ≥ pending_qty) / 부족(0 < stock < pending_qty) / 고갈(stock == 0)
+- FIFO 생산 큐 순서 보장: 먼저 등록된 Job이 먼저 처리됨
+
+### C++20 적용 지침
+
+- `enum class OrderStatus` — 타입 안전 상태 (ConsoleMVC PoC 확인됨)
+- `std::queue<ProductionJob>` — FIFO 생산 큐 (ConsoleMVC PoC 확인됨)
+- `[[nodiscard]]`, `const` 정확성, `noexcept` — 순수 조회 메서드에 적용
+- `std::optional<Sample>` — 검색 결과 없음을 null 대신 표현
+- 스마트 포인터: 소유권이 명확한 경우 `std::unique_ptr`, 공유는 `std::shared_ptr`

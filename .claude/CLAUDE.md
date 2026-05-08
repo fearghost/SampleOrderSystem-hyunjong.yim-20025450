@@ -35,7 +35,27 @@ Google Test (gtest) and Google Mock (gmock) are available via the `packages/gmoc
 
 ## Architecture
 
-The project is in early/skeleton state. Source files go in the root alongside the `.vcxproj`; Visual Studio filters them into three logical groups: Source Files (`.cpp`), Header Files (`.h`), and Resource Files. Add new files to `SampleOrderSystem.vcxproj` under the appropriate `<ClCompile>` or `<ClInclude>` item group.
+4-layer structure combining ConsoleMVC and DataPersistence PoC patterns:
+
+```
+src/
+├── model/       # Domain entity headers only (Sample, Order, ProductionJob, OrderStatus enum)
+├── repository/  # ISampleRepository / IOrderRepository / IProductionRepository (pure virtual)
+│                # + JSON file-based concrete implementations
+├── service/     # Business logic: SampleService, OrderService, ProductionService
+│                # Depend on interfaces only — fully mockable
+├── controller/  # Input routing: one controller per menu feature
+├── view/        # Console I/O with virtual methods for Google Mock
+└── main.cpp     # Wires concrete repos → services → controllers via constructor injection
+test/
+├── MockRepositories.h  # Mock I*Repository interfaces
+├── MockViews.h         # Mock View virtual methods
+└── service/ controller/ repository/  # Test files per layer
+```
+
+Dependency direction: `controller → service → I*Repository ← JsonRepository`
+
+See [PRD.md](docs/PRD.md) for full architecture rationale, dependency diagram, TDD mock strategy, and data models.
 
 ## Documentation
 
