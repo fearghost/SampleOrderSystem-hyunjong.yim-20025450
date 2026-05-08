@@ -36,3 +36,7 @@ Google Test (gtest) and Google Mock (gmock) are available via the `packages/gmoc
 ## Architecture
 
 The project is in early/skeleton state. Source files go in the root alongside the `.vcxproj`; Visual Studio filters them into three logical groups: Source Files (`.cpp`), Header Files (`.h`), and Resource Files. Add new files to `SampleOrderSystem.vcxproj` under the appropriate `<ClCompile>` or `<ClInclude>` item group.
+
+## Documentation
+
+- **[PRD.md](.claude/docs/PRD.md)** — 기능 명세서. 반도체 시료 생산주문관리 시스템의 전체 기능, 주문 상태 흐름, 데이터 모델, TDD 구현 지침, 아키텍처 가이드를 포함한다.
