@@ -16,15 +16,26 @@ void OrderController::run() {
 
 void OrderController::runApproval() {
     auto reserved = service_.listByStatus(OrderStatus::RESERVED);
+    if (reserved.empty()) {
+        view_.showSuccess("승인 대기 중인 주문이 없습니다.");
+        return;
+    }
+
+    // Step 1: 번호로 주문 선택
     view_.showOrderList(reserved, "승인 대기 주문");
-    int choice = view_.getMenuChoice();
+    int idx = view_.getMenuChoice();
+    if (idx <= 0 || idx > static_cast<int>(reserved.size())) return;
+
+    // Step 2: 선택된 주문에 대해 승인/거절 결정
+    const std::string& orderId = reserved[idx - 1].orderId;
+    view_.showSubMenu();
+    int action = view_.getMenuChoice();
+
     try {
-        if (choice == 1) {
-            auto orderId = view_.getOrderId("승인할 주문 번호:");
+        if (action == 1) {
             service_.approveOrder(orderId);
             view_.showSuccess("승인 완료됐습니다.");
-        } else if (choice == 2) {
-            auto orderId = view_.getOrderId("거절할 주문 번호:");
+        } else if (action == 2) {
             service_.rejectOrder(orderId);
             view_.showSuccess("거절 처리됐습니다.");
         }

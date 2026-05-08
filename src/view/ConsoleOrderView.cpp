@@ -4,15 +4,16 @@
 #include <iomanip>
 
 namespace {
+    constexpr int kColIndex        = 6;
     constexpr int kColOrderId      = 22;
     constexpr int kColCustomerName = 20;
     constexpr int kColSampleId     = 10;
     constexpr int kColQuantity     = 8;
-    constexpr int kSeparatorWidth  = 64;
+    constexpr int kSeparatorWidth  = 70;
 }
 
 void ConsoleOrderView::showSubMenu() {
-    std::cout << "\n[1] 승인   [2] 거절   [0] 위로\n";
+    std::cout << " [1] 승인   [2] 거절   [0] 취소\n";
 }
 
 int ConsoleOrderView::getMenuChoice() {
@@ -40,19 +41,24 @@ std::string ConsoleOrderView::getOrderId(const std::string& prompt) {
 void ConsoleOrderView::showOrderList(const std::vector<Order>& list, const std::string& header) {
     std::cout << "\n" << header << " (" << list.size() << "건)\n";
     std::cout << std::left
+              << std::setw(kColIndex)        << "번호"
               << std::setw(kColOrderId)      << "주문번호"
               << std::setw(kColCustomerName) << "고객명"
               << std::setw(kColSampleId)     << "시료 ID"
               << std::setw(kColQuantity)     << "수량"
               << "상태\n";
     std::cout << std::string(kSeparatorWidth, '-') << "\n";
-    for (const auto& o : list)
+    for (size_t i = 0; i < list.size(); ++i) {
+        const auto& o = list[i];
         std::cout << std::left
+                  << std::setw(kColIndex)        << ("[" + std::to_string(i + 1) + "]")
                   << std::setw(kColOrderId)      << o.orderId
                   << std::setw(kColCustomerName) << o.customerName
                   << std::setw(kColSampleId)     << o.sampleId
                   << std::setw(kColQuantity)     << o.quantity
                   << statusToString(o.status) << "\n";
+    }
+    std::cout << "\n처리할 주문 번호를 선택하세요 (0: 위로)\n";
 }
 
 void ConsoleOrderView::showSuccess(const std::string& msg) { std::cout << "[완료] " << msg << "\n"; }
