@@ -18,4 +18,10 @@ struct Order {
     int         quantity;
     OrderStatus status;
     std::string createdAt;     // ISO 8601
+
+    bool operator==(const Order& o) const {
+        return orderId == o.orderId && sampleId == o.sampleId
+            && customerName == o.customerName && quantity == o.quantity
+            && status == o.status && createdAt == o.createdAt;
+    }
 };

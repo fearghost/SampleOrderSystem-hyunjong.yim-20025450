@@ -10,14 +10,14 @@ public:
     ProductionService(IProductionRepository& production,
                       IOrderRepository&      orders,
                       ISampleRepository&     samples);
+    virtual ~ProductionService() = default;
 
-    [[nodiscard]] std::optional<ProductionJob> getCurrentJob() const;
-    [[nodiscard]] std::vector<ProductionJob>   getWaitingJobs() const;
-    [[nodiscard]] bool isIdle() const;
-    [[nodiscard]] int  queueSize() const;
+    [[nodiscard]] virtual std::optional<ProductionJob> getCurrentJob() const;
+    [[nodiscard]] virtual std::vector<ProductionJob>   getWaitingJobs() const;
+    [[nodiscard]] virtual bool isIdle() const;
+    [[nodiscard]] virtual int  queueSize() const;
 
-    // 완료: dequeue → updateStock(+actualQty) → updateStatus(CONFIRMED)
-    void completeCurrentJob();
+    virtual void completeCurrentJob();
 
 private:
     IProductionRepository& production_;

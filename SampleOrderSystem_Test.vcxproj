@@ -91,6 +91,14 @@
     <ClCompile Include="src\service\OrderService.cpp" />
     <ClCompile Include="src\service\ProductionService.cpp" />
   </ItemGroup>
+  <!-- Phase 6: controller sources -->
+  <ItemGroup>
+    <ClCompile Include="src\controller\SampleController.cpp" />
+    <ClCompile Include="src\controller\OrderController.cpp" />
+    <ClCompile Include="src\controller\MonitorController.cpp" />
+    <ClCompile Include="src\controller\ProductionController.cpp" />
+    <ClCompile Include="src\controller\ReleaseController.cpp" />
+  </ItemGroup>
   <!-- Test sources -->
   <ItemGroup>
     <ClCompile Include="test\test_main.cpp" />
@@ -100,6 +108,11 @@
     <ClCompile Include="test\service\SampleServiceTest.cpp" />
     <ClCompile Include="test\service\OrderServiceTest.cpp" />
     <ClCompile Include="test\service\ProductionServiceTest.cpp" />
+    <ClCompile Include="test\controller\SampleControllerTest.cpp" />
+    <ClCompile Include="test\controller\OrderControllerTest.cpp" />
+    <ClCompile Include="test\controller\MonitorControllerTest.cpp" />
+    <ClCompile Include="test\controller\ProductionControllerTest.cpp" />
+    <ClCompile Include="test\controller\ReleaseControllerTest.cpp" />
   </ItemGroup>
   <!-- Headers -->
   <ItemGroup>
@@ -113,6 +126,8 @@
     <ClInclude Include="src\repository\InMemoryOrderRepository.h" />
     <ClInclude Include="src\repository\InMemoryProductionRepository.h" />
     <ClInclude Include="test\MockRepositories.h" />
+    <ClInclude Include="test\MockViews.h" />
+    <ClInclude Include="test\MockServices.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
