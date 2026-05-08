@@ -85,6 +85,13 @@
     <ClCompile Include="src\repository\InMemoryOrderRepository.cpp" />
     <ClCompile Include="src\repository\InMemoryProductionRepository.cpp" />
   </ItemGroup>
+  <!-- Phase 7: JSON repository sources -->
+  <ItemGroup>
+    <ClCompile Include="src\json\JsonParser.cpp" />
+    <ClCompile Include="src\repository\JsonSampleRepository.cpp" />
+    <ClCompile Include="src\repository\JsonOrderRepository.cpp" />
+    <ClCompile Include="src\repository\JsonProductionRepository.cpp" />
+  </ItemGroup>
   <!-- Phase 3-5: service sources -->
   <ItemGroup>
     <ClCompile Include="src\service\SampleService.cpp" />
@@ -113,6 +120,9 @@
     <ClCompile Include="test\controller\MonitorControllerTest.cpp" />
     <ClCompile Include="test\controller\ProductionControllerTest.cpp" />
     <ClCompile Include="test\controller\ReleaseControllerTest.cpp" />
+    <ClCompile Include="test\repository\JsonSampleRepositoryTest.cpp" />
+    <ClCompile Include="test\repository\JsonOrderRepositoryTest.cpp" />
+    <ClCompile Include="test\repository\JsonProductionRepositoryTest.cpp" />
   </ItemGroup>
   <!-- Headers -->
   <ItemGroup>
