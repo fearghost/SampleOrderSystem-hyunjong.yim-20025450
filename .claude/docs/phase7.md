@@ -2,9 +2,9 @@
 
 ## 목표
 
-DataPersistence PoC의 JSON 파일 기반 Repository 구현체를 통합하고,  
-`main.cpp`에서 전체 계층을 DI로 조립하여 완전한 실행 가능 시스템을 완성한다.  
-DummyDataGenerator PoC로 개발·테스트 환경 초기 데이터를 주입한다.
+JSON 파일 기반 Repository 구현체를 통합하고,  
+`main.cpp`에서 전체 계층을 DI로 조립하여 실행 가능 시스템을 완성한다.  
+DummyDataGenerator로 개발·테스트 환경 초기 데이터를 주입한다.
 
 ---
 
