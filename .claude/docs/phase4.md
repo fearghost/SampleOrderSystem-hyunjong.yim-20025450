@@ -37,39 +37,32 @@ public:
     OrderService(ISampleRepository& samples,
                  IOrderRepository&  orders,
                  IProductionRepository& production);
+    virtual ~OrderService() = default;
 
-    // 주문 접수 → RESERVED 상태로 저장
-    void placeOrder(const std::string& sampleId,
-                    const std::string& customerName,
-                    int quantity,
-                    const std::string& orderId,
-                    const std::string& createdAt);
+    // 주문 접수 → orderId·createdAt은 서비스가 내부 생성
+    virtual void placeOrder(const std::string& sampleId,
+                            const std::string& customerName,
+                            int                quantity);
 
-    // 승인: 재고 충분 → CONFIRMED + 재고 차감
-    //       재고 부족 → PRODUCING + 생산라인 등록
-    void approveOrder(const std::string& orderId);
+    virtual void approveOrder(const std::string& orderId);
+    virtual void rejectOrder(const std::string& orderId);
+    virtual void processShipment(const std::string& orderId);
+    virtual void completeProduction(const std::string& orderId);
 
-    // 거절 → REJECTED
-    void rejectOrder(const std::string& orderId);
+    [[nodiscard]] virtual std::vector<Order> listByStatus(OrderStatus status) const;
+    [[nodiscard]] virtual std::vector<Order> listAll() const;
+    [[nodiscard]] virtual int                totalOrderCount() const;
 
-    // 출고: CONFIRMED → RELEASE
-    void processShipment(const std::string& orderId);
-
-    // 생산 완료: PRODUCING → CONFIRMED (생산라인에서 dequeue 후 호출)
-    void completeProduction(const std::string& orderId);
-
-    [[nodiscard]] std::vector<Order> listByStatus(OrderStatus status) const;
-    [[nodiscard]] std::vector<Order> listAll() const;
-    [[nodiscard]] int totalOrderCount() const;
+    // public: 단위 테스트에서 직접 검증 (순수 계산 함수)
+    static int calcActualQty(int shortage, double yieldRate);
 
 private:
     ISampleRepository&     samples_;
     IOrderRepository&      orders_;
     IProductionRepository& production_;
 
-    // 실 생산량 계산: ceil(shortage / (yieldRate * 0.9))
-    static int calcActualQty(int shortage, double yieldRate);
-    static std::string generateTimestamp();
+    static std::string generateOrderId();    // ORD-YYYYMMDD-NNNN 형식 자동 생성
+    static std::string generateTimestamp();  // ISO 8601 현재 시각 반환
 };
 ```
 
@@ -99,9 +92,11 @@ private:
 
 ```
 부족분(shortage) = 주문 수량 - 현재 재고
-실 생산량(actualQty) = ceil(shortage / (yieldRate × 0.9))
+실 생산량(actualQty) = ceil(shortage / (yieldRate × kYieldSafetyFactor))
 총 생산 시간(totalTime) = avgProductionTime × actualQty
 ```
+
+`kYieldSafetyFactor = 0.9` — `OrderService.cpp`에 `constexpr`로 정의된 수율 안전 계수.
 
 예시 (SiC 파워기판-6인치, 수율 0.92):
 - 주문 200ea, 재고 30ea → shortage = 170
@@ -115,9 +110,9 @@ private:
 ### Step 1: `placeOrder` — RESERVED 저장
 
 ```
-[RED]   placeOrder 호출 → orders_.save() 1회, status == RESERVED 검증
-[GREEN] Order 객체 생성 후 orders_.save()
-[REFACTOR] 필드 생성 로직 정리
+[RED]   placeOrder(sampleId, customerName, qty) 호출 → orders_.save() 1회, status == RESERVED 검증
+[GREEN] generateOrderId() + generateTimestamp() 내부 호출 후 orders_.save()
+[REFACTOR] orderId·createdAt 생성 책임을 서비스 내부로 완전 이관 (Controller에 ID 생성 로직 없음)
 ```
 
 ### Step 2: `placeOrder` — 존재하지 않는 시료 ID
@@ -206,7 +201,7 @@ protected:
 
 | # | 테스트명 | 시나리오 | 검증 |
 |---|---|---|---|
-| 1 | `placeOrder_savesReservedOrder` | 정상 입력 | `orders_.save()` 호출, status==RESERVED |
+| 1 | `placeOrder_savesReservedOrder` | 정상 입력 | `orders_.save()` 호출, status==RESERVED, orderId/createdAt 비어있지 않음 |
 | 2 | `placeOrder_unknownSampleId_throws` | `existsById`→false | `std::invalid_argument` |
 | 3 | `approveOrder_stockSufficient_confirmed` | stock=500, qty=200 | `updateStatus(CONFIRMED)` + `updateStock(-200)` |
 | 4 | `approveOrder_stockInsufficient_producing` | stock=30, qty=200 | `updateStatus(PRODUCING)` + `enqueue(shortage=170, actualQty=206)` |
