@@ -4,11 +4,25 @@
 #include <sstream>
 
 namespace {
-    constexpr int kColId           = 8;
-    constexpr int kColName         = 24;
+    constexpr int kColId             = 8;
+    constexpr int kColName           = 26;  // 한글 시료명 최대 시각 폭 여유
     constexpr int kColProductionTime = 12;
-    constexpr int kColYieldRate    = 8;
-    constexpr int kSeparatorWidth  = 60;
+    constexpr int kColYieldRate      = 8;
+    constexpr int kSeparatorWidth    = kColId + kColName + kColProductionTime + kColYieldRate + 8;
+
+    // setw는 바이트 기준이므로 한글(3바이트, 시각 2칸)이 섞이면 정렬이 틀어진다.
+    // 3바이트 UTF-8 문자(한글) 수 K만큼 setw를 보정한다: setw(K + visualWidth)
+    int ksetw(const std::string& text, int visualWidth) {
+        int k = 0;
+        for (size_t i = 0; i < text.size(); ) {
+            unsigned char c = static_cast<unsigned char>(text[i]);
+            if      ((c & 0xF0) == 0xE0) { k++; i += 3; }  // 3바이트 UTF-8 (한글)
+            else if ((c & 0x80) == 0x00) { i += 1; }         // ASCII
+            else if ((c & 0xE0) == 0xC0) { i += 2; }         // 2바이트 UTF-8
+            else                          { i += 4; }          // 4바이트 UTF-8
+        }
+        return k + visualWidth;
+    }
 }
 
 void ConsoleSampleView::showSubMenu() {
@@ -43,11 +57,12 @@ std::string ConsoleSampleView::getSearchKeyword() {
 
 void ConsoleSampleView::showSampleList(const std::vector<Sample>& list, const std::string& header) {
     std::cout << "\n" << header << " (총 " << list.size() << "종)\n";
+    // 헤더: 한글 글자 수만큼 setw 보정 → 데이터 행과 시각적 정렬 일치
     std::cout << std::left
-              << std::setw(kColId)            << "ID"
-              << std::setw(kColName)          << "시료명"
-              << std::setw(kColProductionTime)<< "생산시간"
-              << std::setw(kColYieldRate)     << "수율"
+              << std::setw(kColId)                          << "ID"
+              << std::setw(ksetw("시료명",   kColName))     << "시료명"
+              << std::setw(ksetw("생산시간", kColProductionTime)) << "생산시간"
+              << std::setw(ksetw("수율",     kColYieldRate)) << "수율"
               << "재고\n";
     std::cout << std::string(kSeparatorWidth, '-') << "\n";
     for (const auto& s : list) {
@@ -55,11 +70,12 @@ void ConsoleSampleView::showSampleList(const std::vector<Sample>& list, const st
         timeStr << std::fixed << std::setprecision(1) << s.avgProductionTime << " min";
         std::ostringstream yieldStr;
         yieldStr << std::fixed << std::setprecision(2) << s.yieldRate;
+        // 데이터 행: s.name도 한글 포함 → ksetw로 보정해야 setw가 초과되지 않음
         std::cout << std::left
-                  << std::setw(kColId)             << s.id
-                  << std::setw(kColName)            << s.name
-                  << std::setw(kColProductionTime)  << timeStr.str()
-                  << std::setw(kColYieldRate)        << yieldStr.str()
+                  << std::setw(kColId)                     << s.id
+                  << std::setw(ksetw(s.name, kColName))    << s.name
+                  << std::setw(kColProductionTime)         << timeStr.str()
+                  << std::setw(kColYieldRate)              << yieldStr.str()
                   << s.stock << " ea\n";
     }
 }
