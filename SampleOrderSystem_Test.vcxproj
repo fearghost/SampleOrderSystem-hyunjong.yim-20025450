@@ -85,10 +85,11 @@
     <ClCompile Include="src\repository\InMemoryOrderRepository.cpp" />
     <ClCompile Include="src\repository\InMemoryProductionRepository.cpp" />
   </ItemGroup>
-  <!-- Phase 3-4: service sources -->
+  <!-- Phase 3-5: service sources -->
   <ItemGroup>
     <ClCompile Include="src\service\SampleService.cpp" />
     <ClCompile Include="src\service\OrderService.cpp" />
+    <ClCompile Include="src\service\ProductionService.cpp" />
   </ItemGroup>
   <!-- Test sources -->
   <ItemGroup>
@@ -98,6 +99,7 @@
     <ClCompile Include="test\repository\InMemoryProductionRepositoryTest.cpp" />
     <ClCompile Include="test\service\SampleServiceTest.cpp" />
     <ClCompile Include="test\service\OrderServiceTest.cpp" />
+    <ClCompile Include="test\service\ProductionServiceTest.cpp" />
   </ItemGroup>
   <!-- Headers -->
   <ItemGroup>
