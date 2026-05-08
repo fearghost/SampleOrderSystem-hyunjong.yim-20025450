@@ -1,6 +1,7 @@
 #include "ConsoleProductionView.h"
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 namespace {
     constexpr int kColIdx      = 6;
@@ -9,6 +10,12 @@ namespace {
     constexpr int kColActual   = 10;
     constexpr int kColTime     = 14;
     constexpr int kQueueSepWidth = kColIdx + kColOrderId + kColShortage + kColActual + kColTime;
+
+    std::string fmtTime(double t) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(1) << t << " min";
+        return oss.str();
+    }
 
     int ksetw(const std::string& text, int visualWidth) {
         int k = 0;
@@ -52,7 +59,7 @@ void ConsoleProductionView::showProductionStatus(
                       << std::setw(kColOrderId) << job.orderId
                       << std::setw(kColShortage)<< (std::to_string(job.shortage)  + " ea")
                       << std::setw(kColActual)  << (std::to_string(job.actualQty) + " ea")
-                      << std::setw(kColTime)    << (std::to_string(job.totalTime) + " min")
+                      << std::setw(kColTime)    << fmtTime(job.totalTime)
                       << "▶ 진행 중\n";
         }
         for (const auto& job : waiting) {
@@ -61,7 +68,7 @@ void ConsoleProductionView::showProductionStatus(
                       << std::setw(kColOrderId) << job.orderId
                       << std::setw(kColShortage)<< (std::to_string(job.shortage)  + " ea")
                       << std::setw(kColActual)  << (std::to_string(job.actualQty) + " ea")
-                      << std::setw(kColTime)    << (std::to_string(job.totalTime) + " min")
+                      << std::setw(kColTime)    << fmtTime(job.totalTime)
                       << "대기\n";
         }
     }
