@@ -38,6 +38,7 @@ class MockProductionView : public ProductionView {
 public:
     MOCK_METHOD(void, showProductionStatus,
         (const std::optional<ProductionJob>&, const std::vector<ProductionJob>&), (override));
+    MOCK_METHOD(void, showCancelPrompt, (int), (override));
     MOCK_METHOD(int,  getMenuChoice, (),                   (override));
     MOCK_METHOD(void, showSuccess,   (const std::string&), (override));
     MOCK_METHOD(void, showError,     (const std::string&), (override));

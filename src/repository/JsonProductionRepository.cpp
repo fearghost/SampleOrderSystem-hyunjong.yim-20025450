@@ -1,6 +1,7 @@
 #include "JsonProductionRepository.h"
 #include "RepositoryUtils.h"
 #include "../json/JsonParser.h"
+#include <algorithm>
 
 JsonProductionRepository::JsonProductionRepository(const std::string& filePath)
     : filePath_(filePath) {
@@ -25,6 +26,13 @@ void JsonProductionRepository::dequeue() {
         data.erase(data.begin());
         flush(data);
     }
+}
+
+void JsonProductionRepository::remove(const std::string& orderId) {
+    auto data = load();
+    data.erase(std::remove_if(data.begin(), data.end(),
+        [&](const ProductionJob& j) { return j.orderId == orderId; }), data.end());
+    flush(data);
 }
 
 std::vector<ProductionJob> JsonProductionRepository::waitingJobs() {

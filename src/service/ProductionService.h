@@ -4,6 +4,7 @@
 #include "../repository/ISampleRepository.h"
 #include <optional>
 #include <vector>
+#include <string>
 
 class ProductionService {
 public:
@@ -17,7 +18,11 @@ public:
     [[nodiscard]] virtual bool isIdle() const;
     [[nodiscard]] virtual int  queueSize() const;
 
+    // FIFO 완료: 큐 맨 앞 작업을 완료 처리하고 주문을 CONFIRMED로 전환
     virtual void completeCurrentJob();
+
+    // 취소: 지정 주문의 생산 작업을 큐에서 제거하고 주문을 REJECTED로 전환
+    virtual void cancelJob(const std::string& orderId);
 
 private:
     IProductionRepository& production_;

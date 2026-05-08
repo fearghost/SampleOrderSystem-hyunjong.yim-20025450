@@ -122,3 +122,19 @@ TEST_F(ProductionServiceTest, completeCurrentJob_emptyQueue_throws) {
 
     EXPECT_THROW(service.completeCurrentJob(), std::logic_error);
 }
+
+// 12. cancelJob — production_.remove() + orders_.updateStatus(REJECTED)
+TEST_F(ProductionServiceTest, cancelJob_removesAndRejects) {
+    EXPECT_CALL(mockProduction, remove("ORD-001")).Times(1);
+    EXPECT_CALL(mockOrders, updateStatus("ORD-001", OrderStatus::REJECTED)).Times(1);
+
+    service.cancelJob("ORD-001");
+}
+
+// 13. cancelJob — 대기 작업도 동일하게 처리
+TEST_F(ProductionServiceTest, cancelJob_waitingJob_removesAndRejects) {
+    EXPECT_CALL(mockProduction, remove("ORD-002")).Times(1);
+    EXPECT_CALL(mockOrders, updateStatus("ORD-002", OrderStatus::REJECTED)).Times(1);
+
+    service.cancelJob("ORD-002");
+}

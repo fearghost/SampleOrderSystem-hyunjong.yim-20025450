@@ -30,6 +30,7 @@ public:
     MOCK_METHOD(void, enqueue, (const ProductionJob&), (override));
     MOCK_METHOD(std::optional<ProductionJob>, front, (), (override));
     MOCK_METHOD(void, dequeue, (), (override));
+    MOCK_METHOD(void, remove, (const std::string&), (override));
     MOCK_METHOD(std::vector<ProductionJob>, waitingJobs, (), (override));
     MOCK_METHOD(bool, isEmpty, (), (override));
     MOCK_METHOD(int, size, (), (override));

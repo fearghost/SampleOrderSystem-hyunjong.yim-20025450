@@ -34,3 +34,8 @@ void ProductionService::completeCurrentJob() {
     samples_.updateStock(job.sampleId, job.actualQty);
     orders_.updateStatus(job.orderId, OrderStatus::CONFIRMED);
 }
+
+void ProductionService::cancelJob(const std::string& orderId) {
+    production_.remove(orderId);
+    orders_.updateStatus(orderId, OrderStatus::REJECTED);
+}

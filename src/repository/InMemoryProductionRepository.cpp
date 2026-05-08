@@ -1,4 +1,5 @@
 #include "InMemoryProductionRepository.h"
+#include <algorithm>
 
 void InMemoryProductionRepository::enqueue(const ProductionJob& job) {
     queue_.push_back(job);
@@ -13,6 +14,13 @@ std::optional<ProductionJob> InMemoryProductionRepository::front() {
 void InMemoryProductionRepository::dequeue() {
     if (!queue_.empty())
         queue_.pop_front();
+}
+
+void InMemoryProductionRepository::remove(const std::string& orderId) {
+    auto it = std::find_if(queue_.begin(), queue_.end(),
+        [&](const ProductionJob& j) { return j.orderId == orderId; });
+    if (it != queue_.end())
+        queue_.erase(it);
 }
 
 std::vector<ProductionJob> InMemoryProductionRepository::waitingJobs() {

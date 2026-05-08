@@ -56,4 +56,5 @@ public:
     MOCK_METHOD(bool,                         isIdle,              (), (const, override));
     MOCK_METHOD(int,                          queueSize,           (), (const, override));
     MOCK_METHOD(void,                         completeCurrentJob,  (), (override));
+    MOCK_METHOD(void,                         cancelJob, (const std::string&), (override));
 };
