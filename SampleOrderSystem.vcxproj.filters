@@ -1,13 +1,43 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="소스 파일">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\model">
+      <UniqueIdentifier>{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\repository">
+      <UniqueIdentifier>{B2C3D4E5-F6A7-8901-BCDE-F12345678901}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\service">
+      <UniqueIdentifier>{C3D4E5F6-A7B8-9012-CDEF-123456789012}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\controller">
+      <UniqueIdentifier>{D4E5F6A7-B8C9-0123-DEF0-234567890123}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\view">
+      <UniqueIdentifier>{E5F6A7B8-C9D0-1234-EF01-345678901234}</UniqueIdentifier>
     </Filter>
     <Filter Include="헤더 파일">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일\model">
+      <UniqueIdentifier>{F6A7B8C9-D0E1-2345-F012-456789012345}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\repository">
+      <UniqueIdentifier>{A7B8C9D0-E1F2-3456-0123-567890123456}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\service">
+      <UniqueIdentifier>{B8C9D0E1-F2A3-4567-1234-678901234567}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\controller">
+      <UniqueIdentifier>{C9D0E1F2-A3B4-5678-2345-789012345678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\view">
+      <UniqueIdentifier>{D0E1F2A3-B4C5-6789-3456-890123456789}</UniqueIdentifier>
     </Filter>
     <Filter Include="리소스 파일">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -16,5 +46,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="src\model\Order.cpp">
+      <Filter>소스 파일\model</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\model\Sample.h">
+      <Filter>헤더 파일\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\Order.h">
+      <Filter>헤더 파일\model</Filter>
+    </ClInclude>
+    <ClInclude Include="src\model\ProductionJob.h">
+      <Filter>헤더 파일\model</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
