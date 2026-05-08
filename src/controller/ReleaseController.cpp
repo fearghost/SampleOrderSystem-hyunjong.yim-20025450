@@ -12,8 +12,11 @@ void ReleaseController::run() {
         view_.showSuccess("출고 가능한 주문이 없습니다.");
         return;
     }
-    auto orderId = view_.getOrderId();
-    if (orderId.empty()) return;
+
+    int idx = view_.getMenuChoice();
+    if (idx <= 0 || idx > static_cast<int>(confirmed.size())) return;
+
+    const std::string& orderId = confirmed[idx - 1].orderId;
     try {
         service_.processShipment(orderId);
         view_.showSuccess("출고 처리됐습니다.");

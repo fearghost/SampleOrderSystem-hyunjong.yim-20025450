@@ -46,6 +46,7 @@ public:
 class MockReleaseView : public ReleaseView {
 public:
     MOCK_METHOD(void,        showConfirmedOrders, (const std::vector<Order>&), (override));
+    MOCK_METHOD(int,         getMenuChoice,       (),                          (override));
     MOCK_METHOD(std::string, getOrderId,          (),                          (override));
     MOCK_METHOD(void,        showSuccess,         (const std::string&),        (override));
     MOCK_METHOD(void,        showError,           (const std::string&),        (override));
